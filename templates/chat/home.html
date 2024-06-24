@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'styles.css' %}" />
+    <link href="css/fontawesome.min.css" rel="stylesheet" type="text/css" />
+    <title>YCMatters | Startup hub</title>
+</head>
+<body>
+    <nav>
+      <div class="nav__header">
+        <div class="nav__logo">
+          <a href="{% url 'chat:home' %}"><span>YC</span>Matters</a>
+        </div>
+        <div class="nav__menu__btn" id="menu-btn">
+          <span><i class="ri-menu-line"></i></span>
+        </div>
+      </div>
+      <ul class="nav__links" id="nav-links">
+        <li><a href="{% url 'chat:home' %}">Home</a></li>
+        <li><a href="{% url 'chat:about' %}">About Us</a></li>
+        <li><a href="{% url 'chat:contact' %}">Contact</a></li>
+        <li class="mobile-login">
+          {% if user.is_authenticated %}
+            <a href="{% url 'chat:logout' %}">Logout</a>
+          {% else %}
+            <a href="{% url 'chat:sign_in_or_sign_up' %}">Login</a>
+          {% endif %}
+        </li>
+      </ul>
+      {% if user.is_authenticated %}
+      <div class="nav__btns">
+          <div class="dropdown">
+              <button class="btn sign__in dropdown-toggle">{{ user.username }}</button>
+              <div class="dropdown-menu">
+                  <a href="{% url 'chat:logout' %}">Logout</a>
+              </div>
+          </div>
+      </div>
+      {% else %}
+      <div class="nav__btns">
+          <a href="{% url 'chat:sign_in_or_sign_up' %}">
+              <button class="btn sign__in">Log In</button>
+          </a>
+      </div>
+      {% endif %}
+    </nav>
+
+    <header class="header__container">
+      <div class="header__content">
+        <h1>“ Make something people want ”<br /> <span style="font-size: 18px;">- Paul Graham, Y Combinator</span></h1>
+
+        <p>
+            We provide direct access to Y Combinator's insights and interview preparation using advanced AI. Our platform offers interactive sessions with a virtual YC advisor, delivering personalized advice and feedback to aspiring startup founders.
+        </p>
+        <a href="{% url 'chat:chat_view' %}">
+          <button class="btn-primary">Let's Chat</button>
+        </a>
+        <a href="{% url 'chat:interview_view' %}">
+          <button class="btn-secondary">YC Interview</button>
+        </a>
+      </div>
+    </header>
+
+    <div class="yt-auto-scroll-container">
+      <div class="yt-auto-scroll">
+          <div class="yt-auto-scroll-item">
+              <a href="https://youtu.be/pU13n8kAvP4?si=Fg_VAWPQgO0pQ7G1" target="_blank">
+                  <img src="{% static 'yt-image1.jpg' %}" alt="YouTube Video 1">
+              </a>
+          </div>
+          <div class="yt-auto-scroll-item">
+              <a href="https://youtu.be/y6YIWntdA6U?si=0NvXQ1pdVXvk5Ekc" target="_blank">
+                  <img src="{% static 'yt-image2.jpg' %}" alt="YouTube Video 2">
+              </a>
+          </div>
+          <div class="yt-auto-scroll-item">
+              <a href="https://youtu.be/ZA_WqDO47-E?si=xrOfvzzuToYIfQ3G" target="_blank">
+                  <img src="{% static 'yt-image3.jpg' %}" alt="YouTube Video 3">
+              </a>
+          </div>
+          <div class="yt-auto-scroll-item">
+              <a href="https://youtu.be/cq8aPDzgCKk?si=o2-0rwSj2c0DqrmQ" target="_blank">
+                  <img src="{% static 'yt-image4.jpg' %}" alt="YouTube Video 4">
+              </a>
+          </div>
+          <div class="yt-auto-scroll-item">
+            <a href="https://youtu.be/al-15mMAS18?si=Oqww8Fa2tG-3WwsB" target="_blank">
+                <img src="{% static 'yt-image5.jpg' %}" alt="YouTube Video 5">
+            </a>
+        </div>
+        <div class="yt-auto-scroll-item">
+          <a href="https://youtu.be/KxjPgGLVJSg?si=G8wAgk6mXlh7c4_9" target="_blank">
+              <img src="{% static 'yt-image6.jpg' %}" alt="YouTube Video 6">
+          </a>
+      </div>
+      <div class="yt-auto-scroll-item">
+        <a href="https://youtu.be/CYdsh1FhpI4?si=uHyumw7vXTU_MbLs" target="_blank">
+            <img src="{% static 'yt-image7.jpg' %}" alt="YouTube Video 7">
+        </a>
+    </div>
+          <!-- Repeat items as needed for continuous scroll effect -->
+      </div>
+  </div>
+  
+    
+    <h1 style="text-align: center; font-size: 40px; margin-top: 100px;">Features</h1>
+    <div class="image-container" style="margin-bottom: 100px;">
+      <div class="image-grid">
+          <div class="grid-item">
+              <img src="{% static 'image1.png' %}" alt="Image 1">
+              <div class="grid-item-text">Idea Valuation</div>
+          </div>
+          <div class="grid-item">
+              <img src="{% static 'image2.png' %}" alt="Image 2">
+              <div class="grid-item-text">startup doubts</div>
+          </div>
+          <div class="grid-item">
+              <img src="{% static 'image4.png' %}" alt="Image 4">
+              <div class="grid-item-text">Market study</div>
+          </div>
+          <div class="grid-item">
+            <img src="{% static 'interview.png' %}" alt="Image 3">
+            <div class="grid-item-text">10 Min Interview</div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <!-- home.html -->
+<div class="newsletter-container">
+  <h2>Join YCMatters</h2>
+  <p>Be a part of YCMatters Community</p>
+  <form class="newsletter-form" id="newsletter-form">
+      <input type="email" id="newsletter-email" placeholder="Enter your email" required>
+      <button type="submit">Join</button>
+  </form>
+  <p id="newsletter-message" style="display: none;"></p>
+</div>
+
+<script>
+document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const emailField = document.getElementById('newsletter-email');
+  const messageField = document.getElementById('newsletter-message');
+  const email = emailField.value;
+  
+  fetch('{% url "chat:join_community" %}', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: new URLSearchParams({
+          'email': email
+      })
+  })
+  .then(response => response.json())
+  .then(data => {
+      if (data.success) {
+          messageField.style.display = 'block';
+          messageField.style.color = 'green';
+          messageField.textContent = data.message;
+          emailField.value = ''; // Clear the input field
+      } else {
+          messageField.style.display = 'block';
+          messageField.style.color = 'red';
+          messageField.textContent = data.message;
+      }
+  })
+  .catch(error => {
+      messageField.style.display = 'block';
+      messageField.style.color = 'red';
+      messageField.textContent = 'An error occurred. Please try again.';
+  });
+});
+</script>
+
+  
+    
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script src="{% static 'main.js' %}"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const container = document.querySelector('.yt-auto-scroll');
+          const items = document.querySelectorAll('.yt-auto-scroll-item');
+  
+          // Clone items for a smooth infinite scroll effect
+          items.forEach(item => {
+              const clone = item.cloneNode(true);
+              container.appendChild(clone);
+          });
+      });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const dropdownToggle = document.querySelector('.dropdown-toggle');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+
+    dropdownToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.parentElement.classList.toggle('active');
+    });
+
+    window.addEventListener('click', function() {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        dropdowns.forEach(dropdown => {
+            if (dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+        });
+    });
+});
+
+    </script>
+    
+  
+  
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIYC - The YC Interview</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link rel="stylesheet" href="{% static 'interview.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="voice-container">
+            <div id="voice-button" class="voice-button">
+                <span class="material-icons">mic</span>
+            </div>
+            
+        </div>
+        <p style="color: rgb(231, 230, 230);">hit the mic to get started</p>
+        <div id="response" class="response-container"></div>
+        <div class="timer-container">
+            <h2 style="color: rgb(255, 255, 255);">Time Remaining: <span id="timer">10:00</span></h2>
+        </div>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            let timerStarted = false;
+            let totalTime = 600;
+            let timerInterval;
+    
+            $('#voice-button').on('click', function() {
+                startRecognition();
+            });
+    
+            function sendMessage(message) {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "chat:interview_view" %}',
+                    data: {
+                        'message': message,
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    },
+                    success: function(response) {
+                        $('#response').append('<div class="message user-message"><p>' + message + '</p></div>');
+                        $('#response').append('<div class="message ai-message"><p>' + response.response_message + '</p></div>');
+                        speak(response.response_message);
+                        scrollToBottom();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error in AJAX request:', error);
+                    }
+                });
+            }
+    
+            function scrollToBottom() {
+                const responseContainer = $('#response');
+                responseContainer.scrollTop(responseContainer.prop("scrollHeight"));
+            }
+    
+            function speak(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    utterance.onerror = function(event) {
+                        console.error('SpeechSynthesisUtterance error:', event.error);
+                    };
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    console.error('Speech Synthesis not supported');
+                }
+            }
+    
+            function updateTimer() {
+                if (!timerStarted) return;
+                let minutes = Math.floor(totalTime / 60);
+                let seconds = totalTime % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                $('#timer').text(minutes + ':' + seconds);
+                totalTime--;
+    
+                if (totalTime < 0) {
+                    clearInterval(timerInterval);
+                    window.location.href = '{% url "chat:home" %}';
+                }
+            }
+    
+            function startTimer() {
+                if (!timerStarted) {
+                    timerStarted = true;
+                    timerInterval = setInterval(updateTimer, 1000);
+                }
+            }
+    
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+    
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                sendMessage(transcript);
+                startTimer();
+            };
+    
+            recognition.onerror = function(event) {
+                console.error('Recognition error:', event.error);
+            };
+    
+            function startRecognition() {
+                $('#voice-button').addClass('listening');
+                $('#voice-button .material-icons').text('speak'); // Change text to "record_voice_over"
+                recognition.start();
+                recognition.onend = function() {
+                    $('#voice-button').removeClass('listening');
+                    $('#voice-button .material-icons').text('mic'); // Reset text to "mic" after recognition ends
+                };
+            }
+
+    
+            // Stop speech synthesis when navigating away
+            window.addEventListener('beforeunload', function() {
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+            });
+        });
+    </script>
+    
+</body>
+</html>
