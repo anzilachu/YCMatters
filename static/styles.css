@@ -633,6 +633,16 @@ nav {
   .mobile-login {
     display: block;
   }
+  .nav__links {
+    display: none; /* Hide by default */
+}
+
+.nav__links.open {
+    display: flex; /* Show when 'open' class is added */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 }
 .nav__btns {
   display: flex;
@@ -679,4 +689,13 @@ nav {
 /* Show the dropdown menu when the button is clicked */
 .dropdown.active .dropdown-menu {
   display: block;
+}
+
+/* Existing CSS */
+
+/* Media query to hide authentication buttons on small devices */
+@media (max-width: 768px) {
+  .nav__btns-auth {
+    display: none;
+  }
 }

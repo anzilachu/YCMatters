@@ -4,25 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIYC - The YC Interview</title>
+    <title>YCMatters - The YC Interview</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <link rel="stylesheet" href="{% static 'interview.css' %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
+    <a href="{% url 'chat:home' %}" id="exit-link">
+        <button id="exit-btn" class="material-symbols-rounded">exit_to_app</button>
+    </a>
+
     <div class="container">
         <div class="voice-container">
             <div id="voice-button" class="voice-button">
                 <span class="material-icons">mic</span>
             </div>
-            
         </div>
         <p style="color: rgb(231, 230, 230);">hit the mic to get started</p>
         <div id="response" class="response-container"></div>
         <div class="timer-container">
             <h2 style="color: rgb(255, 255, 255);">Time Remaining: <span id="timer">10:00</span></h2>
         </div>
+        
+        <div class="controls">
+            <button id="pause-btn" class="material-symbols-rounded">pause</button>
+            <button id="play-btn" class="material-symbols-rounded" style="display:none;">play_arrow</button>
+        </div>
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content">
+            <h2>Help us improve! Share feedback.</h2>
+            <textarea id="feedback-input" placeholder="Type your feedback here..."></textarea>
+            <button id="submit-feedback" class="submit-btn">Submit</button>
+            <button id="close-modal" class="close-btn">Close</button>
+        </div>
     </div>
 
     <script type="text/javascript">
@@ -30,12 +49,114 @@
             let timerStarted = false;
             let totalTime = 600;
             let timerInterval;
-    
-            $('#voice-button').on('click', function() {
-                startRecognition();
+            let currentUtterance = null;
+            let isRecognitionStoppedManually = false;
+
+            // Function to start recognition
+            function startRecognition() {
+                isRecognitionStoppedManually = false;
+                $('#voice-button').addClass('listening');
+                $('#voice-button .material-icons').text('speak');
+                recognition.start();
+            }
+
+            // Exit button click event
+            $('#exit-btn').on('click', function(event) {
+                event.preventDefault(); // Prevent the default link action
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "chat:clear_interview_context" %}', // URL for clearing the conversation context
+                    data: {
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                    },
+                    success: function(response) {
+                        $('#feedback-modal').fadeIn(); // Show feedback modal on success
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error clearing conversation context:', error);
+                        window.location.href = "{% url 'chat:home' %}"; // Redirect even if there's an error
+                    }
+                });
             });
-    
+
+            // Close modal button click event
+            $('#close-modal').on('click', function() {
+                $('#feedback-modal').fadeOut(function() {
+                    window.location.href = "{% url 'chat:home' %}"; // Redirect to home after closing modal
+                });
+            });
+
+            // Submit feedback button click event
+            $('#submit-feedback').on('click', function() {
+                const feedback = $('#feedback-input').val().trim();
+                if (feedback !== "") {
+                    // Disable the submit button to prevent multiple submissions
+                    $('#submit-feedback').prop('disabled', true);
+
+                    $.ajax({
+                        url: "{% url 'chat:submit_feedback' %}",
+                        type: "POST",
+                        data: {
+                            'message': feedback,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: (data) => {
+                            console.log(data.message);
+                            $('#feedback-modal').fadeOut(function() {
+                                window.location.href = "{% url 'chat:home' %}";
+                            }); // Close modal and redirect after submitting feedback
+                        },
+                        error: (xhr, errmsg, err) => {
+                            console.error(xhr.status + ": " + xhr.responseText);
+                            // Enable the submit button on error to allow retry
+                            $('#submit-feedback').prop('disabled', false);
+                        }
+                    });
+                }
+            });
+
+            // Close modal if clicked outside the content area
+            $(window).on('click', function(event) {
+                if ($(event.target).is('#feedback-modal')) {
+                    $('#feedback-modal').fadeOut(function() {
+                        window.location.href = "{% url 'chat:home' %}"; // Redirect to home if modal is closed by clicking outside
+                    });
+                }
+            });
+
+            // Voice button click event
+            $('#voice-button').on('click', function() {
+                if (currentUtterance) {
+                    window.speechSynthesis.cancel();
+                    currentUtterance = null;
+                    $('#voice-button .material-icons').text('mic');
+                    startRecognition();
+                } else {
+                    startRecognition();
+                }
+            });
+
+            // Pause button click event
+            $('#pause-btn').on('click', function() {
+                if (currentUtterance) {
+                    window.speechSynthesis.pause();
+                    $('#pause-btn').hide();
+                    $('#play-btn').show();
+                }
+            });
+
+            // Play button click event
+            $('#play-btn').on('click', function() {
+                if (currentUtterance) {
+                    window.speechSynthesis.resume();
+                    $('#play-btn').hide();
+                    $('#pause-btn').show();
+                }
+            });
+
+            // Function to send message via AJAX
             function sendMessage(message) {
+                recognition.stop(); // Stop recognition before sending the message
                 $.ajax({
                     type: 'POST',
                     url: '{% url "chat:interview_view" %}',
@@ -51,28 +172,38 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('Error in AJAX request:', error);
+                        setTimeout(startRecognition, 1000); // Restart recognition even if there's an error
                     }
                 });
             }
-    
+
+            // Function to scroll to bottom of response container
             function scrollToBottom() {
                 const responseContainer = $('#response');
                 responseContainer.scrollTop(responseContainer.prop("scrollHeight"));
             }
-    
+
+            // Function to speak using speech synthesis
             function speak(text) {
                 if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'en-US';
-                    utterance.onerror = function(event) {
+                    currentUtterance = new SpeechSynthesisUtterance(text);
+                    currentUtterance.lang = 'en-US';
+                    currentUtterance.onerror = function(event) {
                         console.error('SpeechSynthesisUtterance error:', event.error);
                     };
-                    window.speechSynthesis.speak(utterance);
+                    currentUtterance.onend = function() {
+                        currentUtterance = null;
+                        $('#voice-button .material-icons').text('mic');
+                        startRecognition();
+                    };
+                    window.speechSynthesis.speak(currentUtterance);
+                    $('#voice-button .material-icons').text('interrupt');
                 } else {
                     console.error('Speech Synthesis not supported');
                 }
             }
-    
+
+            // Function to update timer
             function updateTimer() {
                 if (!timerStarted) return;
                 let minutes = Math.floor(totalTime / 60);
@@ -80,47 +211,50 @@
                 seconds = seconds < 10 ? '0' + seconds : seconds;
                 $('#timer').text(minutes + ':' + seconds);
                 totalTime--;
-    
+
                 if (totalTime < 0) {
                     clearInterval(timerInterval);
                     window.location.href = '{% url "chat:home" %}';
                 }
             }
-    
+
+            // Function to start timer
             function startTimer() {
                 if (!timerStarted) {
                     timerStarted = true;
                     timerInterval = setInterval(updateTimer, 1000);
                 }
             }
-    
+
+            // Speech recognition setup
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.continuous = false;
+            recognition.continuous = true;
             recognition.interimResults = false;
             recognition.lang = 'en-US';
-    
+            recognition.maxAlternatives = 1;
+
+            // Event handlers for speech recognition
             recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
                 sendMessage(transcript);
                 startTimer();
             };
-    
+
             recognition.onerror = function(event) {
                 console.error('Recognition error:', event.error);
+                // Restart recognition in case of error
+                setTimeout(startRecognition, 1000);
             };
-    
-            function startRecognition() {
-                $('#voice-button').addClass('listening');
-                $('#voice-button .material-icons').text('speak'); // Change text to "record_voice_over"
-                recognition.start();
-                recognition.onend = function() {
-                    $('#voice-button').removeClass('listening');
-                    $('#voice-button .material-icons').text('mic'); // Reset text to "mic" after recognition ends
-                };
-            }
 
-    
-            // Stop speech synthesis when navigating away
+            recognition.onend = function() {
+                if (!isRecognitionStoppedManually) {
+                    $('#voice-button').removeClass('listening');
+                    $('#voice-button .material-icons').text('mic');
+                    setTimeout(startRecognition, 1000);
+                }
+            };
+
+            // Window unload event to cancel speech synthesis
             window.addEventListener('beforeunload', function() {
                 if (window.speechSynthesis) {
                     window.speechSynthesis.cancel();
@@ -128,6 +262,5 @@
             });
         });
     </script>
-    
 </body>
 </html>

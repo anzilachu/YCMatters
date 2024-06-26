@@ -162,7 +162,13 @@
           <li><a href="{% url 'chat:home' %}">Home</a></li>
           <li><a href="{% url 'chat:about' %}">About Us</a></li>
           <li><a href="{% url 'chat:contact' %}">Contact</a></li>
-          <li class="mobile-login"><a href="{% url 'chat:sign_in_or_sign_up' %}">Login</a></li>
+          <li class="mobile-login">
+            {% if user.is_authenticated %}
+              <a href="{% url 'chat:logout' %}">Logout</a>
+            {% else %}
+              <a href="{% url 'chat:sign_in_or_sign_up' %}">Login</a>
+            {% endif %}
+          </li>
         </ul>
         {% if user.is_authenticated %}
         <div class="nav__btns">

@@ -34,22 +34,20 @@
           {% endif %}
         </li>
       </ul>
-      {% if user.is_authenticated %}
-      <div class="nav__btns">
-          <div class="dropdown">
-              <button class="btn sign__in dropdown-toggle">{{ user.username }}</button>
-              <div class="dropdown-menu">
-                  <a href="{% url 'chat:logout' %}">Logout</a>
-              </div>
+      <div class="nav__btns nav__btns-auth">
+        {% if user.is_authenticated %}
+        <div class="dropdown">
+          <button class="btn sign__in dropdown-toggle">{{ user.username }}</button>
+          <div class="dropdown-menu">
+            <a href="{% url 'chat:logout' %}">Logout</a>
           </div>
+        </div>
+        {% else %}
+        <a href="{% url 'chat:sign_in_or_sign_up' %}">
+          <button class="btn sign__in">Log In</button>
+        </a>
+        {% endif %}
       </div>
-      {% else %}
-      <div class="nav__btns">
-          <a href="{% url 'chat:sign_in_or_sign_up' %}">
-              <button class="btn sign__in">Log In</button>
-          </a>
-      </div>
-      {% endif %}
     </nav>
 
     <header class="header__container">
@@ -59,7 +57,7 @@
         <p>
             We provide direct access to Y Combinator's insights and interview preparation using advanced AI. Our platform offers interactive sessions with a virtual YC advisor, delivering personalized advice and feedback to aspiring startup founders.
         </p>
-        <a href="{% url 'chat:chat_view' %}">
+        <a href="{% url 'chat:chatcategory' %}">
           <button class="btn-primary">Let's Chat</button>
         </a>
         <a href="{% url 'chat:interview_view' %}">
@@ -72,37 +70,37 @@
       <div class="yt-auto-scroll">
           <div class="yt-auto-scroll-item">
               <a href="https://youtu.be/pU13n8kAvP4?si=Fg_VAWPQgO0pQ7G1" target="_blank">
-                  <img src="{% static 'yt-image1.jpg' %}" alt="YouTube Video 1">
+                  <img src="{% static 'yt-image1.webp' %}" alt="YouTube Video 1">
               </a>
           </div>
           <div class="yt-auto-scroll-item">
               <a href="https://youtu.be/y6YIWntdA6U?si=0NvXQ1pdVXvk5Ekc" target="_blank">
-                  <img src="{% static 'yt-image2.jpg' %}" alt="YouTube Video 2">
+                  <img src="{% static 'yt-image2.webp' %}" alt="YouTube Video 2">
               </a>
           </div>
           <div class="yt-auto-scroll-item">
               <a href="https://youtu.be/ZA_WqDO47-E?si=xrOfvzzuToYIfQ3G" target="_blank">
-                  <img src="{% static 'yt-image3.jpg' %}" alt="YouTube Video 3">
+                  <img src="{% static 'yt-image3.webp' %}" alt="YouTube Video 3">
               </a>
           </div>
           <div class="yt-auto-scroll-item">
               <a href="https://youtu.be/cq8aPDzgCKk?si=o2-0rwSj2c0DqrmQ" target="_blank">
-                  <img src="{% static 'yt-image4.jpg' %}" alt="YouTube Video 4">
+                  <img src="{% static 'yt-image4.webp' %}" alt="YouTube Video 4">
               </a>
           </div>
           <div class="yt-auto-scroll-item">
             <a href="https://youtu.be/al-15mMAS18?si=Oqww8Fa2tG-3WwsB" target="_blank">
-                <img src="{% static 'yt-image5.jpg' %}" alt="YouTube Video 5">
+                <img src="{% static 'yt-image5.webp' %}" alt="YouTube Video 5">
             </a>
         </div>
         <div class="yt-auto-scroll-item">
           <a href="https://youtu.be/KxjPgGLVJSg?si=G8wAgk6mXlh7c4_9" target="_blank">
-              <img src="{% static 'yt-image6.jpg' %}" alt="YouTube Video 6">
+              <img src="{% static 'yt-image6.webp' %}" alt="YouTube Video 6">
           </a>
       </div>
       <div class="yt-auto-scroll-item">
         <a href="https://youtu.be/CYdsh1FhpI4?si=uHyumw7vXTU_MbLs" target="_blank">
-            <img src="{% static 'yt-image7.jpg' %}" alt="YouTube Video 7">
+            <img src="{% static 'yt-image7.webp' %}" alt="YouTube Video 7">
         </a>
     </div>
           <!-- Repeat items as needed for continuous scroll effect -->
@@ -114,19 +112,19 @@
     <div class="image-container" style="margin-bottom: 100px;">
       <div class="image-grid">
           <div class="grid-item">
-              <img src="{% static 'image1.png' %}" alt="Image 1">
+              <img src="{% static 'image1.webp' %}" alt="Image 1">
               <div class="grid-item-text">Idea Valuation</div>
           </div>
           <div class="grid-item">
-              <img src="{% static 'image2.png' %}" alt="Image 2">
+              <img src="{% static 'image2.webp' %}" alt="Image 2">
               <div class="grid-item-text">startup doubts</div>
           </div>
           <div class="grid-item">
-              <img src="{% static 'image4.png' %}" alt="Image 4">
+              <img src="{% static 'image4.webp' %}" alt="Image 4">
               <div class="grid-item-text">Market study</div>
           </div>
           <div class="grid-item">
-            <img src="{% static 'interview.png' %}" alt="Image 3">
+            <img src="{% static 'interview.webp' %}" alt="Image 3">
             <div class="grid-item-text">10 Min Interview</div>
         </div>
       </div>

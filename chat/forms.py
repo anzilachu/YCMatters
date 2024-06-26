@@ -9,3 +9,10 @@ class OTPVerificationForm(forms.Form):
 
 class SignInForm(forms.Form):
     email = forms.EmailField()
+
+from .models import Feedback
+
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = Feedback
+        fields = ['message']

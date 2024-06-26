@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         $.ajax({
             type: "POST",
-            url: "/clear_session/",
+            url: "/clear_session_market/",
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRFToken': csrfToken
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const chatDetails = document.createElement("div");
         chatDetails.classList.add("chat-details");
         const chatText = document.createElement("p");
-        chatText.textContent = content;
+        chatText.innerHTML = content;  // Use innerHTML to render HTML content
         chatDetails.appendChild(chatText);
         chatDiv.appendChild(chatDetails);
         return chatDiv;
@@ -66,14 +66,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadChatHistory = () => {
         $.ajax({
             type: "GET",
-            url: "/get_conversation/",
+            url: "/get_conversation_market/",
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             },
             success: function(response) {
                 if (response.length === 0) {
                     // Append the initial AI message with a special class
-                    const initialMessage = "What is your startup idea?";
+                    const initialMessage = "What is your Market strategy?";
                     const initialChatElement = createChatElement(initialMessage, "incoming");
                     initialChatElement.classList.add("initial-message");
                     chatContainer.appendChild(initialChatElement);
@@ -95,8 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     };
-    
-    
 
     const sendMessage = () => {
         const userMessage = chatInput.value.trim();
@@ -126,44 +124,35 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToBottom();
 
         const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-        const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
+        const csrfToken = csrfTokenInput ? csrfTokenInput.value : null;
 
         $.ajax({
             type: "POST",
-            url: "/chat/",
-            data: {
-                message: userMessage,
-                csrfmiddlewaretoken: csrfToken
-            },
+            url: "/market_chat/",
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+            },
+            data: {
+                message: userMessage
             },
             success: function(response) {
                 typingAnimation.remove();
-                const botMessage = response.response_message;
-                const botChat = createChatElement(botMessage, "incoming");
-                chatContainer.appendChild(botChat);
+                const assistantChat = createChatElement(response.response_message, "incoming");
+                chatContainer.appendChild(assistantChat);
                 scrollToBottom();
             },
             error: function(xhr, textStatus, errorThrown) {
+                console.error("Failed to send message:", errorThrown);
                 typingAnimation.remove();
-                const errorMessage = "An error occurred. Please try again.";
-                const errorChat = createChatElement(errorMessage, "incoming");
-                chatContainer.appendChild(errorChat);
-                scrollToBottom();
             }
         });
     };
 
-    themeButton.addEventListener("click", toggleTheme);
-    deleteButton.addEventListener("click", deleteChats);
     sendButton.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keypress", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
+    deleteButton.addEventListener("click", deleteChats);
+    themeButton.addEventListener("click", toggleTheme);
 
+    // Load initial chat history
     loadChatHistory();
 });
